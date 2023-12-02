@@ -5,20 +5,20 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-    @Prop({ required: true })
-    name: string;
+  @Prop({ required: true })
+  name: string;
 
-    @Prop()
-    profileImg?: string
+  @Prop()
+  profileImg?: string;
 
-    @Prop({ required: true })
-    email: string;
+  @Prop({ required: true })
+  email: string;
 
-    @Prop({ required: true })
-    password: string;
+  @Prop({ required: true })
+  password: string;
 
-    @Prop({default: new Date()})
-    lastSeen: Date;
+  @Prop({ default: new Date() })
+  lastSeen: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

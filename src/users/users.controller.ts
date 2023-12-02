@@ -1,54 +1,32 @@
 import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { UsersService } from './users.service';
+import { SignupDTO } from './dto/signup.dto';
 
-@Controller('users')
+@Controller('auth')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
-    @Post('/signup')
-    async registerUser(
-        @Body('name') name: string, 
-        @Body('email') email: string, 
-        @Body('password') password: string,
-        @Res() res: Response) {
-        const user = await this.usersService.findUserByEmail(email);
+  @Post('/signup')
+  async registerUser(@Body() reqBody: SignupDTO, @Res() res: Response) {
+    const { email, name, password } = reqBody;
 
-        if(user) {
-            return res.status(HttpStatus.CONFLICT).json({
-                message: "Email Address Already Exists."
-            })
-        }
+    const user = await this.usersService.findUserByEmail(email);
 
-        const saltOrRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-        await this.usersService.insertUser(name, email, hashedPassword);
+    if (user) {
+      return res.status(HttpStatus.CONFLICT).json({
+        message: 'Email Address Already Exists.',
+      });
+    }
 
-        return res.status(HttpStatus.CREATED).json({
-            message: "User created successfully" })
-    } 
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    await this.usersService.insertUser(name, email, hashedPassword);
 
-    @Post('/signup')
-    async login(
-        @Body('name') name: string, 
-        @Body('email') email: string, 
-        @Body('password') password: string,
-        @Res() res: Response) {
-        const user = await this.usersService.findUserByEmail(email);
-
-        if(user) {
-            return res.status(HttpStatus.CONFLICT).json({
-                message: "Email Address Already Exists."
-            })
-        }
-
-        const saltOrRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-        await this.usersService.insertUser(name, email, hashedPassword);
-
-        return res.status(HttpStatus.CREATED).json({
-            message: "User created successfully" })
-    } 
+    return res.status(HttpStatus.CREATED).json({
+      message: 'User created successfully',
+    });
+  }
 }
