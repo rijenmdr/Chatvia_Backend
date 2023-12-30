@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpStatus, NotFoundException, ConflictException, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, NotFoundException, ConflictException, UseGuards, Get, Req } from '@nestjs/common';
 import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
 
@@ -7,6 +7,7 @@ import { SignupDTO } from './dto/signup.dto';
 import { EmailDTO } from './dto/email.dto';
 import { VerifyOTPDTO } from './dto/verifyotp.dto';
 import { ChangePasswordDTO } from './dto/changepassword.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('auth')
 export class UsersController {
@@ -82,5 +83,13 @@ export class UsersController {
     return res.json({
       message: "Password Changed Successfully",
     })
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/get-user-detail')
+  async getUserDetail(@Req() req) {
+    const { id } = req.user;
+    const user = await this.usersService.findUserById(id);
+    return user;
   }
 }

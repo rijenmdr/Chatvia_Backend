@@ -26,6 +26,11 @@ export class UsersService {
     return user;
   }
 
+  async findUserById(id: string) {
+    const user = await this.model.findById(id).select("-password -createdAt -updatedAt -lastSeen");
+    return user;
+  }
+
   async insertUser(name: string, email: string, password: string) {
     const newUser = new this.model({
       name,
@@ -34,6 +39,11 @@ export class UsersService {
     });
     await newUser.save();
     return newUser;
+  }
+
+  async updateUser(id: string, user: UpdateUserInput) {
+    const updatedUser = await this.model.updateOne({ _id: id }, { $set: user })
+    return updatedUser;
   }
 
   async validateUser(email: string, passport: string) {
@@ -76,10 +86,5 @@ export class UsersService {
     } catch (error) {
       throw new HttpException(error?.message || 'OTP verification failed', error?.status || HttpStatus.BAD_REQUEST);
     }
-  }
-
-  async updateUser(id: string, user: UpdateUserInput) {
-    const updatedUser = await this.model.updateOne({ _id: id }, { $set: user })
-    return updatedUser;
   }
 }
